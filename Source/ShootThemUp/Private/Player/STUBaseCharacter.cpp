@@ -59,9 +59,9 @@ void ASTUBaseCharacter::MoveRight(float State)
 }
 
 void ASTUBaseCharacter::StartRun() {
-    MovementComponent->MaxWalkSpeed *= 2;
+    MovementComponent->MaxWalkSpeed = 1200;
 }
 
 void ASTUBaseCharacter::StopRun() {
-    MovementComponent->MaxWalkSpeed /= 2;
+    MovementComponent->MaxWalkSpeed = 600;
 }
