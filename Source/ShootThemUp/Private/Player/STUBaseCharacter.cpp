@@ -3,6 +3,7 @@
 #include "Player/STUBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -17,6 +18,8 @@ ASTUBaseCharacter::ASTUBaseCharacter()
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
+
+    MovementComponent = GetCharacterMovement();
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +43,9 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAxis("MoveRight", this, &ASTUBaseCharacter::MoveRight);
     PlayerInputComponent->BindAxis("LookUp", this, &ASTUBaseCharacter::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("TurnAround", this, &ASTUBaseCharacter::AddControllerYawInput);
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASTUBaseCharacter::Jump);
+    PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASTUBaseCharacter::StartRun);
+    PlayerInputComponent->BindAction("Run", IE_Released, this, &ASTUBaseCharacter::StopRun);
 }
 
 void ASTUBaseCharacter::MoveForward(float State)
@@ -50,4 +56,12 @@ void ASTUBaseCharacter::MoveForward(float State)
 void ASTUBaseCharacter::MoveRight(float State)
 {
     AddMovementInput(GetActorRightVector(), State);
+}
+
+void ASTUBaseCharacter::StartRun() {
+    MovementComponent->MaxWalkSpeed *= 2;
+}
+
+void ASTUBaseCharacter::StopRun() {
+    MovementComponent->MaxWalkSpeed /= 2;
 }

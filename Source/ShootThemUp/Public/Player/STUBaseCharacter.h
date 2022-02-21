@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UCharacterMovementComponent;
 
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
@@ -19,6 +20,9 @@ public:
 	ASTUBaseCharacter();
 
 protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UCharacterMovementComponent* MovementComponent;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 
@@ -38,4 +42,6 @@ public:
 private:
     void MoveForward(float State);
     void MoveRight(float State);
+    void StartRun();
+    void StopRun();
 };
