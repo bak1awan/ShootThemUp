@@ -35,6 +35,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    float GetMovementDirection() const;
+
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 

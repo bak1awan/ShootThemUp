@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/STUCharacterMovementComponent.h"
+#include "STUBaseCharacter.h"
 
 ASTUBaseCharacter::ASTUBaseCharacter()
 {
@@ -37,6 +38,15 @@ void ASTUBaseCharacter::BeginPlay()
 bool ASTUBaseCharacter::IsRunning() const
 {
     return bWantsToRun && bIsMovingForward && !GetVelocity().IsZero();
+}
+
+float ASTUBaseCharacter::GetMovementDirection() const
+{
+    const auto VelocityNormal = GetVelocity().GetSafeNormal();
+    const auto AngleBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
+    const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+    const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
+    return CrossProduct.IsZero() ? Degrees : FMath::Sign(CrossProduct.Z) * Degrees;
 }
 
 // Called every frame
