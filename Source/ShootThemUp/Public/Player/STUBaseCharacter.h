@@ -55,8 +55,12 @@ public:
 private:
     bool bWantsToRun = false;
     bool bIsMovingForward = false;
+
     void MoveForward(float State);
     void MoveRight(float State);
+
     void OnStartRunning();
     void OnStopRunning();
+
+    
 };
