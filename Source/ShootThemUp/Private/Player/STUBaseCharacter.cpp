@@ -12,7 +12,6 @@
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
-
 ASTUBaseCharacter::ASTUBaseCharacter()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -43,7 +42,6 @@ ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
 void ASTUBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
-
 }
 
 bool ASTUBaseCharacter::IsRunning() const
@@ -67,8 +65,6 @@ void ASTUBaseCharacter::Tick(float DeltaTime)
 
     const auto Health = HealthComponent->GetHealth();
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-
-    TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
 // Called to bind functionality to input
@@ -105,5 +101,3 @@ void ASTUBaseCharacter::OnStopRunning()
 {
     bWantsToRun = false;
 }
-
-

@@ -2,6 +2,10 @@
 
 #include "Components/STUHealthComponent.h"
 #include "GameFramework/Actor.h"
+#include "Dev/STUIceDamageType.h"
+#include "Dev/STUFireDamageType.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All);
 
 // Sets default values for this component's properties
 USTUHealthComponent::USTUHealthComponent()
@@ -30,5 +34,18 @@ void USTUHealthComponent::BeginPlay()
 void USTUHealthComponent::OnTakeAnyDamage(
     AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
+    UE_LOG(LogHealthComponent, Warning, TEXT("Damage: %.2f"), Damage);
     Health -= Damage;
+
+    if (DamageType)
+    {
+        if (DamageType->IsA<USTUIceDamageType>())
+        {
+            UE_LOG(LogHealthComponent, Warning, TEXT("So cold!"));
+        }
+        else if (DamageType->IsA<USTUFireDamageType>())
+        {
+            UE_LOG(LogHealthComponent, Warning, TEXT("So hot!"));
+        }
+    }
 }
