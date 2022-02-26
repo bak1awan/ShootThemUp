@@ -52,6 +52,8 @@ void ASTUBaseCharacter::BeginPlay()
 
     HealthComponent->OnDeath.AddUObject(this, &ASTUBaseCharacter::OnDeath);
     HealthComponent->OnHealthChanged.AddUObject(this, &ASTUBaseCharacter::OnHealthChanged);
+
+    LandedDelegate.AddDynamic(this, &ASTUBaseCharacter::OnGroundLanded);
 }
 
 bool ASTUBaseCharacter::IsRunning() const
@@ -78,6 +80,7 @@ void ASTUBaseCharacter::Tick(float DeltaTime)
 void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(PlayerInputComponent);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ASTUBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ASTUBaseCharacter::MoveRight);
@@ -117,7 +120,7 @@ void ASTUBaseCharacter::OnDeath()
 
     GetCharacterMovement()->DisableMovement();
 
-    SetLifeSpan(5.0f);
+    SetLifeSpan(LifeSpanOnDeath);
 
     if (Controller)
     {
@@ -128,4 +131,15 @@ void ASTUBaseCharacter::OnDeath()
 void ASTUBaseCharacter::OnHealthChanged(float Health)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+void ASTUBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+    const auto FallVelocityZ = -GetVelocity().Z;
+
+    if (FallVelocityZ < LandedDamageVelocity.X) return;
+       
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+
+    TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }
