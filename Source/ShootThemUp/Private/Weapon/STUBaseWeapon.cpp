@@ -1,8 +1,9 @@
 // Shoot Them Up Game. All Rights Reserved.
 
-
 #include "Weapon/STUBaseWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All);
 
 // Sets default values
 ASTUBaseWeapon::ASTUBaseWeapon()
@@ -19,4 +20,9 @@ void ASTUBaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ASTUBaseWeapon::Fire()
+{
+    UE_LOG(BaseWeaponLog, Warning, TEXT("Fire!"));
 }
