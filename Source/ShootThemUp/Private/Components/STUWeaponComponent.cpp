@@ -9,9 +9,16 @@ USTUWeaponComponent::USTUWeaponComponent()
     PrimaryComponentTick.bCanEverTick = false;
 }
 
-void USTUWeaponComponent::Fire() {
+void USTUWeaponComponent::StartFire()
+{
     if (!CurrentWeapon) return;
-    CurrentWeapon->Fire();
+    CurrentWeapon->StartFire();
+}
+
+void USTUWeaponComponent::StopFire()
+{
+    if (!CurrentWeapon) return;
+    CurrentWeapon->StopFire();
 }
 
 void USTUWeaponComponent::BeginPlay()
@@ -32,7 +39,8 @@ void USTUWeaponComponent::SpawnWeapon()
     CurrentWeapon = GetWorld()->SpawnActor<ASTUBaseWeapon>(WeaponClass);
 
     if (!CurrentWeapon) return;
- 
+
     FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
     CurrentWeapon->AttachToComponent(Character->GetMesh(), AttachmentRules, WeaponAttachPointName);
+    CurrentWeapon->SetOwner(Character);
 }

@@ -43,8 +43,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* DeathAnimMontage;
 
-    
-
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     float LifeSpanOnDeath = 5.0f;
 
@@ -53,8 +51,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
-    
-
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;

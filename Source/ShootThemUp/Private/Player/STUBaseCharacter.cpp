@@ -9,9 +9,9 @@
 #include "Components/STUHealthComponent.h"
 #include "Components/STUWeaponComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "STUBaseCharacter.h"
 #include "GameFramework/Controller.h"
-
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
@@ -69,6 +69,7 @@ bool ASTUBaseCharacter::IsRunning() const
 
 float ASTUBaseCharacter::GetMovementDirection() const
 {
+    if (GetVelocity().IsZero()) return 0.0f;
     const auto VelocityNormal = GetVelocity().GetSafeNormal();
     const auto AngleBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
     const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
@@ -96,7 +97,8 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASTUBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASTUBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ASTUBaseCharacter::OnStopRunning);
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USTUWeaponComponent::Fire);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USTUWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USTUWeaponComponent::StopFire);
 }
 
 void ASTUBaseCharacter::MoveForward(float State)
@@ -134,6 +136,8 @@ void ASTUBaseCharacter::OnDeath()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 void ASTUBaseCharacter::OnHealthChanged(float Health)
@@ -146,9 +150,8 @@ void ASTUBaseCharacter::OnGroundLanded(const FHitResult& Hit)
     const auto FallVelocityZ = -GetVelocity().Z;
 
     if (FallVelocityZ < LandedDamageVelocity.X) return;
-       
+
     const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
 
     TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }
-
