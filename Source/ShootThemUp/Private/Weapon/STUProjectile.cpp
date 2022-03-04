@@ -2,6 +2,7 @@
 
 #include "Weapon/STUProjectile.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 ASTUProjectile::ASTUProjectile()
 {
@@ -10,9 +11,16 @@ ASTUProjectile::ASTUProjectile()
     CollisionComponent = CreateDefaultSubobject<USphereComponent>("CollisionComponent");
     CollisionComponent->InitSphereRadius(5.0f);
     SetRootComponent(CollisionComponent);
+
+    MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
+    MovementComponent->InitialSpeed = 2000.0f;
+    MovementComponent->ProjectileGravityScale = 0.0f;
 }
 
 void ASTUProjectile::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(MovementComponent);
+    MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
 }
