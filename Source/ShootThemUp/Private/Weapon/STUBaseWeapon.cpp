@@ -19,19 +19,45 @@ ASTUBaseWeapon::ASTUBaseWeapon()
     SetRootComponent(WeaponMesh);
 }
 
-void ASTUBaseWeapon::StartFire()
-{
+void ASTUBaseWeapon::StartFire() {}
 
+void ASTUBaseWeapon::StopFire() {}
+
+void ASTUBaseWeapon::MakeShot() {}
+
+void ASTUBaseWeapon::DecreaseAmmo() {
+    --CurrentAmmo.Bullets;
+    LogAmmo();
+
+    if (IsClipEmpty() && !IsAmmoEmpty())
+    {
+        ChangeClip();
+    }
 }
 
-void ASTUBaseWeapon::StopFire()
+bool ASTUBaseWeapon::IsAmmoEmpty() const
 {
-
+    return !CurrentAmmo.bInfinite && CurrentAmmo.Clips == 0 && IsClipEmpty();
 }
 
-void ASTUBaseWeapon::MakeShot() 
+bool ASTUBaseWeapon::IsClipEmpty() const
 {
+    return CurrentAmmo.Bullets == 0;
+}
 
+void ASTUBaseWeapon::ChangeClip() {
+    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+    if (!CurrentAmmo.bInfinite)
+    {
+        --CurrentAmmo.Clips;
+    }
+    UE_LOG(BaseWeaponLog, Warning, TEXT("======== Change Clip ========"));
+}
+
+void ASTUBaseWeapon::LogAmmo() {
+    FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
+    AmmoInfo += CurrentAmmo.bInfinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
+    UE_LOG(BaseWeaponLog, Warning, TEXT("%s"), *AmmoInfo);
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +65,8 @@ void ASTUBaseWeapon::BeginPlay()
 {
     Super::BeginPlay();
     check(WeaponMesh);
+
+    CurrentAmmo = DefaultAmmo;
 }
 
 APlayerController* ASTUBaseWeapon::GetPlayerController() const
@@ -82,11 +110,4 @@ void ASTUBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, c
     CollisionParams.AddIgnoredActor(GetOwner());
 
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
-}
-
-void ASTUBaseWeapon::MakeDamage(const FHitResult& HitResult)
-{
-    const auto DamagedActor = HitResult.GetActor();
-    if (!DamagedActor) return;
-    DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
 }

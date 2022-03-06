@@ -1,6 +1,5 @@
 // Shoot Them Up Game. All Rights Reserved.
 
-
 #include "Weapon/STURiffleWeapon.h"
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
@@ -8,10 +7,19 @@
 
 void ASTURiffleWeapon::MakeShot()
 {
-    if (!GetWorld()) return;
+    if (!GetWorld() || IsAmmoEmpty())
+    {
+        StopFire();
+        return;
+    }
+    
 
     FVector TraceStart, TraceEnd;
-    if (!GetTraceData(TraceStart, TraceEnd)) return;
+    if (!GetTraceData(TraceStart, TraceEnd))
+    {
+        StopFire();
+        return;
+    }
 
     FHitResult HitResult;
     MakeHit(HitResult, TraceStart, TraceEnd);
@@ -26,6 +34,7 @@ void ASTURiffleWeapon::MakeShot()
     {
         DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Red, false, 3.0f, 0, 3.0f);
     }
+    DecreaseAmmo();
 }
 
 void ASTURiffleWeapon::StartFire()
@@ -48,4 +57,11 @@ bool ASTURiffleWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) cons
     TraceStart = ViewLocation;
     TraceEnd = TraceStart + FMath::VRandCone(ViewRotation.Vector(), FMath::DegreesToRadians(BulletSpred)) * TraceMaxDistance;
     return true;
+}
+
+void ASTURiffleWeapon::MakeDamage(const FHitResult& HitResult)
+{
+    const auto DamagedActor = HitResult.GetActor();
+    if (!DamagedActor) return;
+    DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
 }
