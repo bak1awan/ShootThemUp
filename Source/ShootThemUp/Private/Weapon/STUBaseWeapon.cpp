@@ -19,19 +19,35 @@ ASTUBaseWeapon::ASTUBaseWeapon()
     SetRootComponent(WeaponMesh);
 }
 
+void ASTUBaseWeapon::BeginPlay()
+{
+    Super::BeginPlay();
+    check(WeaponMesh);
+    checkf(DefaultAmmo.Bullets > 0, TEXT("Bullets count couldn't be less or equal to zero!"));
+    checkf(DefaultAmmo.Clips > 0, TEXT("Clips count couldn't be less or equal to zero!"));
+    CurrentAmmo = DefaultAmmo;
+}
+
 void ASTUBaseWeapon::StartFire() {}
 
 void ASTUBaseWeapon::StopFire() {}
 
 void ASTUBaseWeapon::MakeShot() {}
 
-void ASTUBaseWeapon::DecreaseAmmo() {
+void ASTUBaseWeapon::DecreaseAmmo()
+{
+    if (CurrentAmmo.Bullets == 0)
+    {
+        UE_LOG(BaseWeaponLog, Warning, TEXT("Clip is empty!"));
+        return;
+    }
     --CurrentAmmo.Bullets;
     LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
-        ChangeClip();
+        StopFire();
+        OnClipEmpty.Broadcast();
     }
 }
 
@@ -45,28 +61,31 @@ bool ASTUBaseWeapon::IsClipEmpty() const
     return CurrentAmmo.Bullets == 0;
 }
 
-void ASTUBaseWeapon::ChangeClip() {
-    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+void ASTUBaseWeapon::ChangeClip()
+{
     if (!CurrentAmmo.bInfinite)
     {
+        if (CurrentAmmo.Clips == 0)
+        {
+            UE_LOG(BaseWeaponLog, Warning, TEXT("No more clips!"));
+            return;
+        }
         --CurrentAmmo.Clips;
     }
+    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
     UE_LOG(BaseWeaponLog, Warning, TEXT("======== Change Clip ========"));
 }
 
-void ASTUBaseWeapon::LogAmmo() {
+bool ASTUBaseWeapon::CanReload() const
+{
+    return CurrentAmmo.Bullets < DefaultAmmo.Bullets && CurrentAmmo.Clips > 0;
+}
+
+void ASTUBaseWeapon::LogAmmo()
+{
     FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
     AmmoInfo += CurrentAmmo.bInfinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
     UE_LOG(BaseWeaponLog, Warning, TEXT("%s"), *AmmoInfo);
-}
-
-// Called when the game starts or when spawned
-void ASTUBaseWeapon::BeginPlay()
-{
-    Super::BeginPlay();
-    check(WeaponMesh);
-
-    CurrentAmmo = DefaultAmmo;
 }
 
 APlayerController* ASTUBaseWeapon::GetPlayerController() const

@@ -12,7 +12,6 @@ void ASTURiffleWeapon::MakeShot()
         StopFire();
         return;
     }
-    
 
     FVector TraceStart, TraceEnd;
     if (!GetTraceData(TraceStart, TraceEnd))
@@ -39,8 +38,8 @@ void ASTURiffleWeapon::MakeShot()
 
 void ASTURiffleWeapon::StartFire()
 {
-    MakeShot();
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASTURiffleWeapon::MakeShot, TimeBetweenShots, true);
+    MakeShot();
 }
 
 void ASTURiffleWeapon::StopFire()
