@@ -46,6 +46,9 @@ private:
     ASTUBaseWeapon* CurrentWeapon = nullptr;
 
     UPROPERTY()
+    ASTUBaseWeapon* PreviousWeapon = nullptr;
+
+    UPROPERTY()
     TArray<ASTUBaseWeapon*> Weapons;
 
     UPROPERTY()
@@ -64,6 +67,7 @@ private:
     void InitAnimation();
     void OnEquipFinished(USkeletalMeshComponent* MeshComponent);
     void OnReloadFinished(USkeletalMeshComponent* MeshComponent);
+    void OnEquipWeaponChangeFinished(USkeletalMeshComponent* MeshComponent);
 
     bool CanFire() const;
     bool CanEquip() const;

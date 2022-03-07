@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Animations/STUEquipFinishedAnimNotify.h"
 #include "Animations/STUReloadFinishedAnimNotify.h"
+#include "Animations/STUEquipWeaponChangeAnimNotify.h"
 #include "Animations/AnimUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All);
@@ -69,9 +70,10 @@ void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
     if (CurrentWeapon)
     {
         CurrentWeapon->StopFire();
-        AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
+        // AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
     }
 
+    PreviousWeapon = Weapons[(WeaponIndex + 1) % 2];
     CurrentWeapon = Weapons[WeaponIndex];
 
     const auto CurrentWeaponData = WeaponData.FindByPredicate([&](const FWeaponData& Data) {  //
@@ -80,9 +82,23 @@ void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
 
     CurrentReloadAnimMontage = CurrentWeaponData ? CurrentWeaponData->ReloadAnimMontage : nullptr;
 
-    AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponEquipSocketName);
+    // AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponEquipSocketName);
     bEquipAnimInProgress = true;
     PlayAnimMontage(EquipAnimMontage);
+}
+
+void USTUWeaponComponent::OnEquipWeaponChangeFinished(USkeletalMeshComponent* MeshComponent)
+{
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+    if (!Character || Character->GetMesh() != MeshComponent) return;
+
+    if (PreviousWeapon)
+    {
+        AttachWeaponToSocket(PreviousWeapon, Character->GetMesh(), WeaponArmorySocketName);
+    }
+
+    AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponEquipSocketName);
 }
 
 void USTUWeaponComponent::AttachWeaponToSocket(ASTUBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName)
@@ -112,6 +128,17 @@ void USTUWeaponComponent::InitAnimation()
     else
     {
         UE_LOG(LogWeaponComponent, Error, TEXT("Equip anim notify is forgotten to set!"));
+        checkNoEntry();
+    }
+
+    auto EquipWeaponChangeNotify = AnimUtils::FindNotifyByClass<USTUEquipWeaponChangeAnimNotify>(EquipAnimMontage);
+    if (EquipWeaponChangeNotify)
+    {
+        EquipWeaponChangeNotify->OnNotified.AddUObject(this, &USTUWeaponComponent::OnEquipWeaponChangeFinished);
+    }
+    else
+    {
+        UE_LOG(LogWeaponComponent, Error, TEXT("Weapon change anim notify is forgotten to set!"));
         checkNoEntry();
     }
 
