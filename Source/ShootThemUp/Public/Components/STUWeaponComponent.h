@@ -15,8 +15,9 @@ class SHOOTTHEMUP_API USTUWeaponComponent : public UActorComponent
     GENERATED_BODY()
 
 public:
-    // Sets default values for this component's properties
     USTUWeaponComponent();
+
+    bool GetWeaponUIData(FWeaponUIData& UIData) const;
 
     void StartFire();
     void StopFire();

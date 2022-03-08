@@ -24,7 +24,12 @@ public:
     virtual void StartFire();
     virtual void StopFire();
 
+    FWeaponUIData GetUIData() const { return UIData; }
+
 protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    FWeaponUIData UIData;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USkeletalMeshComponent* WeaponMesh;
 
