@@ -18,6 +18,7 @@ public:
     USTUWeaponComponent();
 
     bool GetWeaponUIData(FWeaponUIData& UIData) const;
+    bool GetWeaponAmmoData(FAmmoData& AmmoData) const;
 
     void StartFire();
     void StopFire();

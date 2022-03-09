@@ -25,6 +25,7 @@ public:
     virtual void StopFire();
 
     FWeaponUIData GetUIData() const { return UIData; }
+    FAmmoData GetAmmoData() const { return CurrentAmmo; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
