@@ -25,6 +25,8 @@ public:
     void NextWeapon();
     void Reload();
 
+    bool TryToAddAmmo(TSubclassOf<ASTUBaseWeapon> WeaponType, int32 ClipsAmount);
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -75,6 +77,6 @@ private:
     bool CanEquip() const;
     bool CanReload() const;
 
-    void OnClipEmpty();
+    void OnClipEmpty(ASTUBaseWeapon* AmmoEmptyWeapon);
     void ChangeClip();
 };

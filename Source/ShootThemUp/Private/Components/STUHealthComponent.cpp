@@ -19,6 +19,19 @@ USTUHealthComponent::USTUHealthComponent()
     // ...
 }
 
+bool USTUHealthComponent::TryToAddHealth(int32 HealAmount)
+{
+    if (IsHealthFull() || IsDead()) return false;
+
+    SetHealth(Health + HealAmount);
+    return true;
+}
+
+bool USTUHealthComponent::IsHealthFull() const
+{
+    return FMath::IsNearlyEqual(Health, MaxHealth);
+}
+
 // Called when the game starts
 void USTUHealthComponent::BeginPlay()
 {
@@ -39,11 +52,10 @@ void USTUHealthComponent::OnTakeAnyDamage(
     AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
     if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
-    
+
     SetHealth(Health - Damage);
 
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
-
 
     if (IsDead())
     {
@@ -59,7 +71,7 @@ void USTUHealthComponent::HealUpdate()
 {
     SetHealth(Health + HealModifier);
 
-    if (FMath::IsNearlyEqual(Health, MaxHealth) && GetWorld())
+    if (IsHealthFull() && GetWorld())
     {
         GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
     }

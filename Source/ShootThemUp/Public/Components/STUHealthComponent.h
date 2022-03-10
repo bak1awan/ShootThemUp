@@ -23,8 +23,11 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Health")
     float GetHealthPercent() const { return Health / MaxHealth; }
-    
+
     float GetHealth() const { return Health; }
+
+    bool TryToAddHealth(int32 HealAmount);
+    bool IsHealthFull() const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "1000.0"))
