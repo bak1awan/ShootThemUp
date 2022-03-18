@@ -1,8 +1,8 @@
 // Shoot Them Up Game. All Rights Reserved.
 
-#include "Components/STUHealthComponent.h"
-#include "STUUtils.h"
 #include "Pickups/STUHealthPickup.h"
+#include "STUUtils.h"
+#include "Components/STUHealthComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthPickup, All, All);
 

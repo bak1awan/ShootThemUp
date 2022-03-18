@@ -19,8 +19,6 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
     GENERATED_BODY()
 
 public:
-    ASTUBaseCharacter();
-
     // Sets default values for this character's properties
     ASTUBaseCharacter(const FObjectInitializer& ObjInit);
 
@@ -55,6 +53,8 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
+    virtual void OnDeath();
+
 public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
@@ -78,8 +78,7 @@ private:
     void OnStartRunning();
     void OnStopRunning();
 
-    void OnDeath();
-    void OnHealthChanged(float Health);
+    void OnHealthChanged(float Health, float HealthDelta);
 
     UFUNCTION()
     void OnGroundLanded(const FHitResult& Hit);

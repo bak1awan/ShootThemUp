@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All);
 
@@ -123,6 +125,17 @@ bool ASTUBaseWeapon::IsAmmoFull() const
            CurrentAmmo.Clips == DefaultAmmo.Clips;
 }
 
+UNiagaraComponent* ASTUBaseWeapon::SpawnMuzzleFX()
+{
+    return UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFX,  //
+        WeaponMesh,                                                //
+        MuzzleSocketName,                                          //
+        FVector::ZeroVector,                                       //
+        FRotator::ZeroRotator,                                     //
+        EAttachLocation::SnapToTarget,                             //
+        true);
+}
+
 APlayerController* ASTUBaseWeapon::GetPlayerController() const
 {
     const auto Player = Cast<ACharacter>(GetOwner());
@@ -133,10 +146,22 @@ APlayerController* ASTUBaseWeapon::GetPlayerController() const
 
 bool ASTUBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
-    const auto Controller = GetPlayerController();
-    if (!Controller) return false;
+    const auto STUCharacter = Cast<ACharacter>(GetOwner());
+    if (!STUCharacter) return false;
 
-    Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    if (STUCharacter->IsPlayerControlled())
+    {
+        const auto Controller = GetPlayerController();
+        if (!Controller) return false;
+
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    }
+    else
+    {
+        ViewLocation = GetMuzzleWorldLocation();
+        ViewRotation = WeaponMesh->GetSocketRotation(MuzzleSocketName);
+    }
+
     return true;
 }
 
@@ -162,6 +187,7 @@ void ASTUBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, c
 
     FCollisionQueryParams CollisionParams;
     CollisionParams.AddIgnoredActor(GetOwner());
+    CollisionParams.bReturnPhysicalMaterial = true;
 
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
