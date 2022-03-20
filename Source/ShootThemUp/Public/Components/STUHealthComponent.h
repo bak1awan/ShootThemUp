@@ -69,4 +69,6 @@ private:
         AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
     void SetHealth(float NewHealth);
+
+    void Killed(AController* KillerController);
 };

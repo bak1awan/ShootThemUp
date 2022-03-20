@@ -104,7 +104,7 @@ void ASTUBaseWeapon::ChangeClip()
         --CurrentAmmo.Clips;
     }
     CurrentAmmo.Bullets = DefaultAmmo.Bullets;
-    UE_LOG(BaseWeaponLog, Warning, TEXT("======== Change Clip ========"));
+    // UE_LOG(BaseWeaponLog, Warning, TEXT("======== Change Clip ========"));
 }
 
 bool ASTUBaseWeapon::CanReload() const
@@ -136,14 +136,6 @@ UNiagaraComponent* ASTUBaseWeapon::SpawnMuzzleFX()
         true);
 }
 
-APlayerController* ASTUBaseWeapon::GetPlayerController() const
-{
-    const auto Player = Cast<ACharacter>(GetOwner());
-    if (!Player) return nullptr;
-
-    return Player->GetController<APlayerController>();
-}
-
 bool ASTUBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
     const auto STUCharacter = Cast<ACharacter>(GetOwner());
@@ -151,7 +143,7 @@ bool ASTUBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRot
 
     if (STUCharacter->IsPlayerControlled())
     {
-        const auto Controller = GetPlayerController();
+        const auto Controller = STUCharacter->GetController<APlayerController>();
         if (!Controller) return false;
 
         Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);

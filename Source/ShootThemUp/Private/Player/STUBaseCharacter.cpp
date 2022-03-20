@@ -141,6 +141,13 @@ void ASTUBaseCharacter::OnDeath()
     GetMesh()->SetSimulatePhysics(true);
 }
 
+void ASTUBaseCharacter::SetPlayerColor(const FLinearColor& Color)
+{
+    const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+    if (!MaterialInst) return;
+    MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
+}
+
 void ASTUBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
