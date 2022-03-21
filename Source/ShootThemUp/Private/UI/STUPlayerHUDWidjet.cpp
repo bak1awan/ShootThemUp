@@ -40,18 +40,27 @@ bool USTUPlayerHUDWidjet::IsPlayerSpectating() const
     return Controller && Controller->GetStateName() == NAME_Spectating;
 }
 
-bool USTUPlayerHUDWidjet::Initialize()
-{
-    const auto HealthComponent = STUUtils::GetSTUPlayerComponent<USTUHealthComponent>(GetOwningPlayerPawn());
-    if (HealthComponent)
-    {
-        HealthComponent->OnHealthChanged.AddUObject(this, &USTUPlayerHUDWidjet::OnHealthChanged);
-    }
-    return Super::Initialize();
-}
-
 void USTUPlayerHUDWidjet::OnHealthChanged(float Health, float HealthDelta)
 {
     if (HealthDelta < 0) OnTakeDamage();
 }
 
+bool USTUPlayerHUDWidjet::Initialize()
+{
+    if (GetOwningPlayer())
+    {
+        GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USTUPlayerHUDWidjet::OnNewPawn);
+        OnNewPawn(GetOwningPlayerPawn());
+    }
+
+    return Super::Initialize();
+}
+
+void USTUPlayerHUDWidjet::OnNewPawn(APawn* NewPawn)
+{
+    const auto HealthComponent = STUUtils::GetSTUPlayerComponent<USTUHealthComponent>(NewPawn);
+    if (HealthComponent)
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &USTUPlayerHUDWidjet::OnHealthChanged);
+    }
+}
