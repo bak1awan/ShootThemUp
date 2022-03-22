@@ -2,22 +2,48 @@
 
 #include "UI/STUGameHUD.h"
 #include "Engine/Canvas.h"
+#include "STUGameModeBase.h"
 #include "Blueprint/UserWidget.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogSTUGameHUD, All, All);
 
 void ASTUGameHUD::DrawHUD()
 {
     Super::DrawHUD();
-    // DrawCrosshair();
 }
 
 void ASTUGameHUD::BeginPlay()
 {
     Super::BeginPlay();
-    auto PlayerHUDWidjet = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidjetClass);
-    if (PlayerHUDWidjet)
+
+    GameWidjets.Add(ESTUMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidjetClass));
+    GameWidjets.Add(ESTUMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidjetClass));
+
+    for (auto GameWidjetPair : GameWidjets)
     {
-        PlayerHUDWidjet->AddToViewport();
+        const auto GameWidjet = GameWidjetPair.Value;
+        if (!GameWidjet) continue;
+
+        GameWidjet->AddToViewport();
+        GameWidjet->SetVisibility(ESlateVisibility::Hidden);
     }
+
+    if (GetWorld())
+    {
+        const auto GameMode = Cast<ASTUGameModeBase>(GetWorld()->GetAuthGameMode());
+        if (GameMode) GameMode->OnMatchStateChanged.AddUObject(this, &ASTUGameHUD::OnMatchStateChanged);
+    }
+}
+
+void ASTUGameHUD::OnMatchStateChanged(ESTUMatchState State) 
+{
+    if (CurrentWidjet) CurrentWidjet->SetVisibility(ESlateVisibility::Hidden); // won't be called on the first time
+
+    if (GameWidjets.Contains(State)) CurrentWidjet = GameWidjets[State];
+
+    if (CurrentWidjet) CurrentWidjet->SetVisibility(ESlateVisibility::Visible);
+
+    UE_LOG(LogSTUGameHUD, Warning, TEXT("Match state changed to %s!"), *UEnum::GetValueAsString(State));
 }
 
 void ASTUGameHUD::DrawCrosshair()
