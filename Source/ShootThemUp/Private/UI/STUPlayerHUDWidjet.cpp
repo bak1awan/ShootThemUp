@@ -45,15 +45,15 @@ void USTUPlayerHUDWidjet::OnHealthChanged(float Health, float HealthDelta)
     if (HealthDelta < 0) OnTakeDamage();
 }
 
-bool USTUPlayerHUDWidjet::Initialize()
+void USTUPlayerHUDWidjet::NativeOnInitialized()
 {
+    Super::NativeOnInitialized();
+
     if (GetOwningPlayer())
     {
         GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USTUPlayerHUDWidjet::OnNewPawn);
         OnNewPawn(GetOwningPlayerPawn());
     }
-
-    return Super::Initialize();
 }
 
 void USTUPlayerHUDWidjet::OnNewPawn(APawn* NewPawn)

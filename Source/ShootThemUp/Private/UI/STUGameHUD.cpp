@@ -16,16 +16,17 @@ void ASTUGameHUD::BeginPlay()
 {
     Super::BeginPlay();
 
-    GameWidjets.Add(ESTUMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidjetClass));
-    GameWidjets.Add(ESTUMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidjetClass));
+    GameWidgets.Add(ESTUMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
+    GameWidgets.Add(ESTUMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
+    GameWidgets.Add(ESTUMatchState::GameOver, CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass));
 
-    for (auto GameWidjetPair : GameWidjets)
+    for (auto GameWidgetPair : GameWidgets)
     {
-        const auto GameWidjet = GameWidjetPair.Value;
-        if (!GameWidjet) continue;
+        const auto GameWidget = GameWidgetPair.Value;
+        if (!GameWidget) continue;
 
-        GameWidjet->AddToViewport();
-        GameWidjet->SetVisibility(ESlateVisibility::Hidden);
+        GameWidget->AddToViewport();
+        GameWidget->SetVisibility(ESlateVisibility::Hidden);
     }
 
     if (GetWorld())
@@ -35,13 +36,13 @@ void ASTUGameHUD::BeginPlay()
     }
 }
 
-void ASTUGameHUD::OnMatchStateChanged(ESTUMatchState State) 
+void ASTUGameHUD::OnMatchStateChanged(ESTUMatchState State)
 {
-    if (CurrentWidjet) CurrentWidjet->SetVisibility(ESlateVisibility::Hidden); // won't be called on the first time
+    if (CurrentWidget) CurrentWidget->SetVisibility(ESlateVisibility::Hidden); // won't be called on the first time
 
-    if (GameWidjets.Contains(State)) CurrentWidjet = GameWidjets[State];
+    if (GameWidgets.Contains(State)) CurrentWidget = GameWidgets[State];
 
-    if (CurrentWidjet) CurrentWidjet->SetVisibility(ESlateVisibility::Visible);
+    if (CurrentWidget) CurrentWidget->SetVisibility(ESlateVisibility::Visible);
 
     UE_LOG(LogSTUGameHUD, Warning, TEXT("Match state changed to %s!"), *UEnum::GetValueAsString(State));
 }
