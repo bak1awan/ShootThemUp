@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "STUBaseCharacter.generated.h"
 
-
 class UCharacterMovementComponent;
 class USTUHealthComponent;
 class USTUWeaponComponent;
@@ -47,6 +46,8 @@ protected:
 
     virtual void OnDeath();
 
+    virtual void OnHealthChanged(float Health, float HealthDelta);
+
 public:
     void SetPlayerColor(const FLinearColor& Color);
 
@@ -59,8 +60,6 @@ public:
     virtual void Tick(float DeltaTime) override;
 
 private:
-    void OnHealthChanged(float Health, float HealthDelta);
-
     UFUNCTION()
     void OnGroundLanded(const FHitResult& Hit);
 };
