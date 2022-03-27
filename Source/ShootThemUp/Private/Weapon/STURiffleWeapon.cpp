@@ -6,6 +6,9 @@
 #include "Weapon/Components/STUWeaponFXComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 ASTURiffleWeapon::ASTURiffleWeapon()
 {
@@ -50,7 +53,7 @@ void ASTURiffleWeapon::MakeShot()
 
 void ASTURiffleWeapon::StartFire()
 {
-    InitMuzzleFX();
+    InitFX();
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASTURiffleWeapon::MakeShot, TimeBetweenShots, true);
     MakeShot();
 }
@@ -58,7 +61,7 @@ void ASTURiffleWeapon::StartFire()
 void ASTURiffleWeapon::StopFire()
 {
     GetWorldTimerManager().ClearTimer(ShotTimerHandle);
-    SetMuzzleFXVisibility(false);
+    SetFXActive(false);
 }
 
 bool ASTURiffleWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
@@ -76,23 +79,30 @@ void ASTURiffleWeapon::MakeDamage(const FHitResult& HitResult)
 {
     const auto DamagedActor = HitResult.GetActor();
     if (!DamagedActor) return;
-    DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetController(), this);
+
+    FPointDamageEvent PointDamageEvent;
+    PointDamageEvent.HitInfo = HitResult;
+    DamagedActor->TakeDamage(DamageAmount, PointDamageEvent, GetController(), this);
 }
 
-void ASTURiffleWeapon::InitMuzzleFX()
+void ASTURiffleWeapon::InitFX()
 {
     if (!MuzzleFXComponent) MuzzleFXComponent = SpawnMuzzleFX();
 
-    SetMuzzleFXVisibility(true);
+    if (!FireAudioComponent) FireAudioComponent = UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
+
+    SetFXActive(true);
 }
 
-void ASTURiffleWeapon::SetMuzzleFXVisibility(bool Visible)
+void ASTURiffleWeapon::SetFXActive(bool IsActive)
 {
     if (MuzzleFXComponent)
     {
-        MuzzleFXComponent->SetPaused(!Visible);
-        MuzzleFXComponent->SetVisibility(Visible, true);
+        MuzzleFXComponent->SetPaused(!IsActive);
+        MuzzleFXComponent->SetVisibility(IsActive, true);
     }
+
+    if (FireAudioComponent) IsActive ? FireAudioComponent->Play() : FireAudioComponent->Stop();
 }
 
 void ASTURiffleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd)
@@ -106,4 +116,14 @@ AController* ASTURiffleWeapon::GetController() const
 {
     const auto Pawn = Cast<APawn>(GetOwner());
     return Pawn ? Pawn->GetController() : nullptr;
+}
+
+void ASTURiffleWeapon::Zoom(bool Enabled)
+{
+    const auto Controller = Cast<APlayerController>(GetController());
+    if (!Controller || !Controller->PlayerCameraManager) return;
+
+    if (Enabled) DefaultCameraFOV = Controller->PlayerCameraManager->GetFOVAngle();
+
+    Controller->PlayerCameraManager->SetFOV(Enabled ? FOVZoomAngle : DefaultCameraFOV);
 }

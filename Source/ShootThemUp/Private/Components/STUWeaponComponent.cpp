@@ -70,7 +70,7 @@ void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
     if (CurrentWeapon)
     {
         CurrentWeapon->StopFire();
-        // AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
+        CurrentWeapon->Zoom(false);
     }
 
     PreviousWeapon = Weapons[(WeaponIndex + 1) % 2];
@@ -81,8 +81,6 @@ void USTUWeaponComponent::EquipWeapon(int32 WeaponIndex)
     });
 
     CurrentReloadAnimMontage = CurrentWeaponData ? CurrentWeaponData->ReloadAnimMontage : nullptr;
-
-    // AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponEquipSocketName);
     bEquipAnimInProgress = true;
     PlayAnimMontage(EquipAnimMontage);
 }
@@ -237,6 +235,11 @@ bool USTUWeaponComponent::NeedAmmo(TSubclassOf<ASTUBaseWeapon> WeaponType)
         }
     }
     return false;
+}
+
+void USTUWeaponComponent::Zoom(bool Enabled)
+{
+    if (CurrentWeapon) CurrentWeapon->Zoom(Enabled);
 }
 
 bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const

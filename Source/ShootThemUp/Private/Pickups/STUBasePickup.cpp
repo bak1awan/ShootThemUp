@@ -2,6 +2,8 @@
 
 #include "Pickups/STUBasePickup.h"
 #include "Components/SphereComponent.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBasePickup, All, All);
 
@@ -61,8 +63,9 @@ bool ASTUBasePickup::GivePickupTo(APawn* PlayerPawn)
 void ASTUBasePickup::PickupWasTaken()
 {
     CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    GetRootComponent()->SetVisibility(false, true);
+    if (GetRootComponent()) GetRootComponent()->SetVisibility(false, true);
     GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASTUBasePickup::Respawn, RespawnTime);
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupTakenSound, GetActorLocation());
 }
 
 void ASTUBasePickup::Respawn()

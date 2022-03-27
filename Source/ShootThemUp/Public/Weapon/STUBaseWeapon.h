@@ -10,6 +10,7 @@
 class USkeletalMeshComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
@@ -25,6 +26,7 @@ public:
 
     virtual void StartFire();
     virtual void StopFire();
+    virtual void Zoom(bool Enabled) {}
 
     FWeaponUIData GetUIData() const { return UIData; }
     FAmmoData GetAmmoData() const { return CurrentAmmo; }
@@ -52,6 +54,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
     UNiagaraSystem* MuzzleFX;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+    USoundCue* FireSound;
+
     virtual void BeginPlay() override;
 
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
@@ -67,7 +72,6 @@ protected:
     void DecreaseAmmo();
     bool IsClipEmpty() const;
     void LogAmmo();
-
 
     UNiagaraComponent* SpawnMuzzleFX();
 

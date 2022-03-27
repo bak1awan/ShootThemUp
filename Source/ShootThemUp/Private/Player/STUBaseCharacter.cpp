@@ -1,9 +1,9 @@
 // Shoot Them Up Game. All Rights Reserved.
 
 #include "Player/STUBaseCharacter.h"
-
+#include "Sound/SoundCue.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Kismet/GameplayStatics.h"
 #include "Components/STUCharacterMovementComponent.h"
 #include "Components/STUHealthComponent.h"
 #include "Components/STUWeaponComponent.h"
@@ -72,6 +72,8 @@ void ASTUBaseCharacter::OnDeath()
 
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     GetMesh()->SetSimulatePhysics(true);
+
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 }
 
 void ASTUBaseCharacter::SetPlayerColor(const FLinearColor& Color)
@@ -81,9 +83,7 @@ void ASTUBaseCharacter::SetPlayerColor(const FLinearColor& Color)
     MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
 }
 
-void ASTUBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
-{
-}
+void ASTUBaseCharacter::OnHealthChanged(float Health, float HealthDelta) {}
 
 void ASTUBaseCharacter::OnGroundLanded(const FHitResult& Hit)
 {

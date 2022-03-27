@@ -22,7 +22,7 @@ void USTUGameOverWidget::NativeOnInitialized()
     if (ResetLevelButton) ResetLevelButton->OnClicked.AddDynamic(this, &USTUGameOverWidget::OnResetLevel);
 }
 
-void USTUGameOverWidget::OnResetLevel() 
+void USTUGameOverWidget::OnResetLevel()
 {
     // const FName CurrentLevelName = "TestLevel";
     const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
@@ -55,8 +55,8 @@ void USTUGameOverWidget::UpdatePlayersStat()
         PlayerStatRowWidget->SetKills(STUUtils::TextFromInt(PlayerState->GetKillsNum()));
         PlayerStatRowWidget->SetDeaths(STUUtils::TextFromInt(PlayerState->GetDeathsNum()));
         PlayerStatRowWidget->SetTeam(STUUtils::TextFromInt(PlayerState->GetTeamID()));
-        PlayerStatRowWidget->SetPlayerIndicatorVisibility(
-            Controller->IsPlayerController());  // if it is a player controller - show background image
+        PlayerStatRowWidget->SetPlayerIndicatorVisibility(Controller->IsPlayerController());
+        PlayerStatRowWidget->SetTeamColor(PlayerState->GetTeamColor());
 
         PlayerStatBox->AddChild(PlayerStatRowWidget);
     }
