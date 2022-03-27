@@ -53,6 +53,7 @@ void ASTURiffleWeapon::MakeShot()
 
 void ASTURiffleWeapon::StartFire()
 {
+    Super::StartFire();
     InitFX();
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASTURiffleWeapon::MakeShot, TimeBetweenShots, true);
     MakeShot();
@@ -102,7 +103,7 @@ void ASTURiffleWeapon::SetFXActive(bool IsActive)
         MuzzleFXComponent->SetVisibility(IsActive, true);
     }
 
-    if (FireAudioComponent) IsActive ? FireAudioComponent->Play() : FireAudioComponent->Stop();
+    if (FireAudioComponent) FireAudioComponent->SetPaused(!IsActive);
 }
 
 void ASTURiffleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd)

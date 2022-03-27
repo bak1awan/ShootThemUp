@@ -8,9 +8,9 @@
 #include "Player/STUPlayerState.h"
 #include "STUUtils.h"
 #include "Components/STURespawnComponent.h"
+#include "Components/STUWeaponComponent.h"
 #include "EngineUtils.h"
 #include "STUGameInstance.h"
-
 
 DEFINE_LOG_CATEGORY_STATIC(LogSTUGameModeBase, All, All);
 
@@ -101,11 +101,7 @@ void ASTUGameModeBase::ResetPlayers()
 
 void ASTUGameModeBase::ResetOnePlayer(AController* Controller)
 {
-    if (Controller && Controller->GetPawn())
-    {
-        Controller->GetPawn()->Reset();
-    }
-
+    if (Controller && Controller->GetPawn()) Controller->GetPawn()->Reset();
     RestartPlayer(Controller);
     SetPlayerColor(Controller);
 }
@@ -184,9 +180,26 @@ void ASTUGameModeBase::LogPlayerInfo()
 bool ASTUGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
 {
     const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
-    if (PauseSet) SetMatchState(ESTUMatchState::Pause);
+    if (PauseSet)
+    {
+        SetMatchState(ESTUMatchState::Pause);
+        StopAllFire();
+    }
     return PauseSet;
 }
+
+void ASTUGameModeBase::StopAllFire()
+{
+    for (auto Pawn : TActorRange<APawn>(GetWorld()))
+    {
+        const auto WeaponComponent = STUUtils::GetSTUPlayerComponent<USTUWeaponComponent>(Pawn);
+        if (!WeaponComponent) continue;
+
+        WeaponComponent->StopFire();
+        WeaponComponent->Zoom(false);
+    }
+}
+
 
 bool ASTUGameModeBase::ClearPause()
 {
@@ -211,7 +224,7 @@ void ASTUGameModeBase::StartRespawn(AController* Controller)
     RespawnComponent->Respawn(GameData.RespawnTime);
 }
 
-void ASTUGameModeBase::GameOver() 
+void ASTUGameModeBase::GameOver()
 {
     UE_LOG(LogSTUGameModeBase, Error, TEXT("============== GAME OVER =============="));
     LogPlayerInfo();

@@ -67,4 +67,5 @@ private:
     void StartRespawn(AController* Controller);
 
     void GameOver();
+    void StopAllFire();
 };
