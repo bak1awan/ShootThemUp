@@ -142,3 +142,15 @@ struct FLevelData
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelSelectedSignature, const FLevelData&);
+
+// ---------------------------- REFERS TO FLAGGAMEMODE ----------------------------
+UENUM(BlueprintType)
+enum class ESTUFlagState : uint8
+{
+    NotCaptured = 0,
+    InCaptureProgress,
+    Captured,
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFlagCapturedSignature, const int32 TeamID);
+DECLARE_MULTICAST_DELEGATE(FOnFlagUncapturedSignature);
