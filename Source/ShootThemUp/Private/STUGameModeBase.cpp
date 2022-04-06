@@ -74,18 +74,23 @@ void ASTUGameModeBase::GameTimerUpdate()
 {
     if (--RoundCountDown == 0)
     {
-        GetWorldTimerManager().ClearTimer(GameRoundTimerHandle);
+        RestartRound();
+    }
+}
 
-        if (CurrentRound + 1 <= GameData.RoundsNum)
-        {
-            ++CurrentRound;
-            ResetPlayers();
-            StartRound();
-        }
-        else
-        {
-            GameOver();
-        }
+void ASTUGameModeBase::RestartRound()
+{
+    GetWorldTimerManager().ClearTimer(GameRoundTimerHandle);
+
+    if (CurrentRound + 1 <= GameData.RoundsNum)
+    {
+        ++CurrentRound;
+        ResetPlayers();
+        StartRound();
+    }
+    else
+    {
+        GameOver();
     }
 }
 

@@ -36,6 +36,8 @@ void ASTUGameHUD::BeginPlay()
     }
 }
 
+
+
 void ASTUGameHUD::OnMatchStateChanged(ESTUMatchState State)
 {
     if (CurrentWidget) CurrentWidget->SetVisibility(ESlateVisibility::Hidden); // won't be called on the first time

@@ -8,6 +8,7 @@
 #include "STUGameModeBase.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "Kismet/KismetMathLibrary.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFlag, All, All);
 
@@ -20,7 +21,7 @@ ASTUFlagActor::ASTUFlagActor()
 
     FlagCollision = CreateDefaultSubobject<USphereComponent>("FlagCollision");
     FlagCollision->SetupAttachment(FlagMesh);
-    FlagCollision->InitSphereRadius(1000.0f);
+    FlagCollision->InitSphereRadius(CollisionRadius);
     FlagCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     FlagCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 }
@@ -31,6 +32,7 @@ void ASTUFlagActor::BeginPlay()
     GetWorld()->GetTimerManager().SetTimer(CaptureTimer, this, &ASTUFlagActor::UpdateCaptureTimer, 1.0f, true);
     check(FlagMesh);
     check(FlagCollision);
+    SetFlagColor();
 }
 
 void ASTUFlagActor::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -38,7 +40,6 @@ void ASTUFlagActor::NotifyActorBeginOverlap(AActor* OtherActor)
     const auto Character = Cast<ACharacter>(OtherActor);
     if (!Character) return;
     AddPlayerToSeize(Character);
-    UE_LOG(LogFlag, Error, TEXT("Actor %s begin overlapping!"), *OtherActor->GetName());
 }
 
 void ASTUFlagActor::NotifyActorEndOverlap(AActor* OtherActor)
@@ -46,7 +47,24 @@ void ASTUFlagActor::NotifyActorEndOverlap(AActor* OtherActor)
     const auto Character = Cast<ACharacter>(OtherActor);
     if (!Character) return;
     RemovePlayerFromSeize(Character);
-    UE_LOG(LogFlag, Error, TEXT("Actor %s end overlapping!"), *OtherActor->GetName());
+}
+
+void ASTUFlagActor::SetFlagColor()
+{
+    const auto GameMode = GetWorld()->GetAuthGameMode<ASTUGameModeBase>();
+    if (!GameMode) return;
+    const auto NewFlagColor =
+        CapturedByTeamNumber == -1 ? DefaultFlagColor : TeamFlagColor = GameMode->DetermineColorByTeamID(CapturedByTeamNumber);
+    TeamFlagColor = NewFlagColor;
+}
+
+void ASTUFlagActor::UpdateFlagColor()
+{
+    const auto MaterialInst = FlagMesh->CreateAndSetMaterialInstanceDynamic(0);
+    if (!MaterialInst) return;
+    const auto Color = UKismetMathLibrary::LinearColorLerp(DefaultFlagColor, TeamFlagColor, GetFlagCapacityPercent());
+    CurrentFlagColor = Color;
+    MaterialInst->SetVectorParameterValue("Color", Color);
 }
 
 void ASTUFlagActor::AddPlayerToSeize(ACharacter* Player)
@@ -91,13 +109,15 @@ void ASTUFlagActor::UpdateCaptureTimer()
                 if (CapturedByTeamNumber == -1)
                 {
                     CapturedByTeamNumber = 1;  //  make it first team's flag
+                    SetFlagColor();
                     CurrentFlagCapacity = FMath::Clamp(
                         CurrentFlagCapacity + TeamDifference * CaptureSpeed, 0, MaxFlagCapacity);  // start to increase capacity
                 }
                 // if it is already was started to captured by another team - decrease capacity
                 else if (CapturedByTeamNumber != 1)
                 {
-                    CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity - TeamDifference * CaptureSpeed, 0, MaxFlagCapacity);
+                    CurrentFlagCapacity =
+                        FMath::Clamp(CurrentFlagCapacity - (TeamDifference * CaptureSpeed + CaptureSpeed), 0, MaxFlagCapacity);
                 }
                 // else just increase the capacity
                 else
@@ -111,11 +131,13 @@ void ASTUFlagActor::UpdateCaptureTimer()
                 if (CapturedByTeamNumber == -1)
                 {
                     CapturedByTeamNumber = 2;
+                    SetFlagColor();
                     CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + (-TeamDifference * CaptureSpeed), 0, MaxFlagCapacity);
                 }
                 else if (CapturedByTeamNumber != 2)
                 {
-                    CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity - (-TeamDifference * CaptureSpeed), 0, MaxFlagCapacity);
+                    CurrentFlagCapacity =
+                        FMath::Clamp(CurrentFlagCapacity - (-TeamDifference * CaptureSpeed + CaptureSpeed), 0, MaxFlagCapacity);
                 }
                 else
                 {
@@ -138,11 +160,13 @@ void ASTUFlagActor::UpdateCaptureTimer()
             }
 
             UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
+            UE_LOG(LogFlag, Error, TEXT("Flag capacity percent: %.2f"), GetFlagCapacityPercent());
 
             // if Current flag capacity get to 0, we need to change the captured team number of the flag to -1 (restore to default)
             if (CurrentFlagCapacity == 0)
             {
                 CapturedByTeamNumber = -1;
+                SetFlagColor();
             }
 
             // If one team captured the flag - change state
@@ -160,14 +184,17 @@ void ASTUFlagActor::UpdateCaptureTimer()
             {
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + (TeamDifferenceCaptured * CaptureSpeed), 0, MaxFlagCapacity);
             }
-            // if amount of captured players is bigger then amount of enemy players and second one have already captured some capacity 
+            // if amount of captured players is bigger then amount of enemy players and second one have already captured some capacity
             // start to restore capacity
-            else if (TeamPlayerCounter[CapturedByTeamNumber - 1] > TeamPlayerCounter[CapturedByTeamNumber % 2] && CurrentFlagCapacity < MaxFlagCapacity)
+            else if (TeamPlayerCounter[CapturedByTeamNumber - 1] > TeamPlayerCounter[CapturedByTeamNumber % 2] &&
+                     CurrentFlagCapacity < MaxFlagCapacity)
             {
-                CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + (TeamDifferenceCaptured * CaptureSpeed), 0, MaxFlagCapacity);
+                CurrentFlagCapacity =
+                    FMath::Clamp(CurrentFlagCapacity + (TeamDifferenceCaptured * CaptureSpeed + CaptureSpeed), 0, MaxFlagCapacity);
             }
             // if there is no players near the flag but before enemy players have captured a little bit of capacity - restore it
-            else if (TeamPlayerCounter[CapturedByTeamNumber - 1] == TeamPlayerCounter[CapturedByTeamNumber % 2] && TeamPlayerCounter[CapturedByTeamNumber - 1] == 0)
+            else if (TeamPlayerCounter[CapturedByTeamNumber - 1] == TeamPlayerCounter[CapturedByTeamNumber % 2] &&
+                     TeamPlayerCounter[CapturedByTeamNumber - 1] == 0)
             {
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + CaptureSpeed, 0, MaxFlagCapacity);
             }
@@ -178,7 +205,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             }
 
             UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
-            
+
             // if enemy team captured all the capacity of owner team - change state
             if (CurrentFlagCapacity == 0)
             {
@@ -188,4 +215,5 @@ void ASTUFlagActor::UpdateCaptureTimer()
             }
             break;
     }
+    UpdateFlagColor();
 }

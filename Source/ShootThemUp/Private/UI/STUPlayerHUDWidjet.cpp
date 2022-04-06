@@ -6,6 +6,10 @@
 #include "STUUtils.h"
 #include "Components/ProgressBar.h"
 #include "Player/STUPlayerState.h"
+#include "UI/STUFlagWidget.h"
+#include "Flag/STUFlagActor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/HorizontalBox.h"
 
 int32 USTUPlayerHUDWidjet::GetKillsNum() const
 {
@@ -99,5 +103,28 @@ void USTUPlayerHUDWidjet::NativeOnInitialized()
     {
         GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USTUPlayerHUDWidjet::OnNewPawn);
         OnNewPawn(GetOwningPlayerPawn());
+    }
+    AddFlagWidgets();
+}
+
+void USTUPlayerHUDWidjet::AddFlagWidgets()
+{
+    if (!GetWorld()) return;
+
+    TArray<AActor*> AllFlags;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASTUFlagActor::StaticClass(), AllFlags);
+
+    FlagBox->ClearChildren();
+
+    for (const auto Flag : AllFlags)
+    {
+        const auto CurrentFlag = Cast<ASTUFlagActor>(Flag);
+        if (!CurrentFlag) return;
+
+        const auto FlagWidget = CreateWidget<USTUFlagWidget>(GetWorld(), FlagWidgetClass);
+        if (!FlagWidget) return;
+
+        FlagWidget->SetFlag(CurrentFlag);
+        FlagBox->AddChild(FlagWidget);
     }
 }

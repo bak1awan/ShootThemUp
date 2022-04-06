@@ -32,6 +32,7 @@ public:
     virtual bool ClearPause() override;
 
     void RespawnRequest(AController* Controller);
+    FLinearColor DetermineColorByTeamID(int32 TeamID) const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Game")
@@ -42,6 +43,8 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Game")
     FGameData GameData;
+
+    void RestartRound();
 
 private:
     int32 CurrentRound = 1;
@@ -59,7 +62,7 @@ private:
     void ResetOnePlayer(AController* Controller);
 
     void CreateTeamsInfo();
-    FLinearColor DetermineColorByTeamID(int32 TeamID) const;
+    
     void SetPlayerColor(AController* Controller);
 
     void LogPlayerInfo();

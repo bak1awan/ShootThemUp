@@ -23,6 +23,12 @@ public:
     FOnFlagCapturedSignature OnFlagCaptured;
     FOnFlagUncapturedSignature OnFlagUncaptured;
 
+    float GetFlagCapacityPercent() const {return static_cast<float>(CurrentFlagCapacity) / MaxFlagCapacity; }
+    FLinearColor GetFlagColor() const { return CurrentFlagColor; }
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
+    FLinearColor DefaultFlagColor = FLinearColor::White;
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* FlagMesh;
@@ -31,11 +37,16 @@ protected:
     USphereComponent* FlagCollision;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
+    float CollisionRadius = 1000.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     int32 MaxFlagCapacity = 100;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     int32 CaptureSpeed = 5;
 
+    FLinearColor TeamFlagColor;
+    FLinearColor CurrentFlagColor;
 
     ESTUFlagState FlagState = ESTUFlagState::NotCaptured;
 
@@ -47,10 +58,14 @@ protected:
 
     virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
+    void SetFlagColor();
+
+    void UpdateFlagColor();
+
 private:
     FTimerHandle CaptureTimer;
 
-    FVector2D TeamPlayerCounter = FVector2D::ZeroVector;
+    TArray<int32> TeamPlayerCounter{0, 0};
     int32 CurrentFlagCapacity = 0;
 
     void AddPlayerToSeize(ACharacter* Player);

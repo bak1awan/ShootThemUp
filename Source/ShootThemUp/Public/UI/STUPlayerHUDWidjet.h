@@ -8,6 +8,8 @@
 #include "STUPlayerHUDWidjet.generated.h"
 
 class UProgressBar;
+class ASTUFlagActor;
+class UHorizontalBox;
 
 UCLASS()
 class SHOOTTHEMUP_API USTUPlayerHUDWidjet : public USTUBaseWidget
@@ -32,7 +34,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     bool IsPlayerSpectating() const;
-    
+
     UFUNCTION(BlueprintCallable, Category = "UI")
     FString FormatBullets(int32 BulletsNum) const;
 
@@ -40,6 +42,9 @@ public:
     void OnTakeDamage();
 
 protected:
+    UPROPERTY(meta = (BindWidget))
+    UHorizontalBox* FlagBox;
+
     UPROPERTY(meta = (BindWidget))
     UProgressBar* HealthProgressBar;
 
@@ -55,9 +60,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     FLinearColor BadColor = FLinearColor::Red;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    TSubclassOf<UUserWidget> FlagWidgetClass;
+
     virtual void NativeOnInitialized() override;
 
 private:
+    void AddFlagWidgets();
     void OnHealthChanged(float Health, float HealthDelta);
     void OnNewPawn(APawn* NewPawn);
     void UpdateHealthBar();
