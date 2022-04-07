@@ -75,6 +75,15 @@ void ASTUFlagActor::AddPlayerToSeize(ACharacter* Player)
     ++TeamPlayerCounter[TeamID - 1];
 }
 
+void ASTUFlagActor::ResetFlag() 
+{
+    CurrentFlagColor = DefaultFlagColor;
+    CurrentFlagCapacity = 0;
+    TeamPlayerCounter = {0, 0};
+    CapturedByTeamNumber = -1;
+    FlagState = ESTUFlagState::NotCaptured;
+}
+
 void ASTUFlagActor::RemovePlayerFromSeize(ACharacter* Player)
 {
     const auto PlayerState = GetPlayerState(Player);
@@ -148,7 +157,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // if there is equal amount of characters we should not increase the capacity
             else if (TeamPlayerCounter[0] == TeamPlayerCounter[1] && TeamPlayerCounter[0] > 0)
             {
-                UE_LOG(LogFlag, Error, TEXT("Equal amount of characters near flag"));
+                // UE_LOG(LogFlag, Error, TEXT("Equal amount of characters near flag"));
                 break;
             }
 
@@ -159,8 +168,8 @@ void ASTUFlagActor::UpdateCaptureTimer()
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity - CaptureSpeed, 0, MaxFlagCapacity);
             }
 
-            UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
-            UE_LOG(LogFlag, Error, TEXT("Flag capacity percent: %.2f"), GetFlagCapacityPercent());
+            // UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
+            // UE_LOG(LogFlag, Error, TEXT("Flag capacity percent: %.2f"), GetFlagCapacityPercent());
 
             // if Current flag capacity get to 0, we need to change the captured team number of the flag to -1 (restore to default)
             if (CurrentFlagCapacity == 0)
@@ -172,7 +181,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // If one team captured the flag - change state
             if (CurrentFlagCapacity == MaxFlagCapacity)
             {
-                UE_LOG(LogFlag, Error, TEXT("Change state to CAPTURED"));
+                // UE_LOG(LogFlag, Error, TEXT("Change state to CAPTURED"));
                 FlagState = ESTUFlagState::Captured;
                 OnFlagCaptured.Broadcast(CapturedByTeamNumber);
             }
@@ -204,14 +213,16 @@ void ASTUFlagActor::UpdateCaptureTimer()
                 break;
             }
 
-            UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
+            // UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
 
             // if enemy team captured all the capacity of owner team - change state
             if (CurrentFlagCapacity == 0)
             {
-                UE_LOG(LogFlag, Error, TEXT("Change state to NOTCAPTURED"));
+                // UE_LOG(LogFlag, Error, TEXT("Change state to NOTCAPTURED"));
+                OnFlagUncaptured.Broadcast(CapturedByTeamNumber);
+                CapturedByTeamNumber = -1;
+                SetFlagColor();
                 FlagState = ESTUFlagState::NotCaptured;
-                OnFlagUncaptured.Broadcast();
             }
             break;
     }

@@ -153,4 +153,4 @@ enum class ESTUFlagState : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnFlagCapturedSignature, const int32 TeamID);
-DECLARE_MULTICAST_DELEGATE(FOnFlagUncapturedSignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFlagUncapturedSignature, const int32 TeamID);

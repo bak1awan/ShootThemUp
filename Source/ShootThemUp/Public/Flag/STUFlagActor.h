@@ -29,6 +29,8 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     FLinearColor DefaultFlagColor = FLinearColor::White;
 
+    void ResetFlag();
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* FlagMesh;
@@ -36,10 +38,10 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USphereComponent* FlagCollision;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlagProperties")
     float CollisionRadius = 1000.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlagProperties")
     int32 MaxFlagCapacity = 100;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
