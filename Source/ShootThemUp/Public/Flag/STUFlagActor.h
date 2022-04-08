@@ -25,6 +25,9 @@ public:
 
     float GetFlagCapacityPercent() const {return static_cast<float>(CurrentFlagCapacity) / MaxFlagCapacity; }
     FLinearColor GetFlagColor() const { return CurrentFlagColor; }
+    int32 GetOwningTeamID() const { return CapturedByTeamNumber; }
+    ESTUFlagState GetCaptureState() const { return FlagState; }
+    bool GetTryingToUncapture() const { return EnemyTryingToUncapture; }
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     FLinearColor DefaultFlagColor = FLinearColor::White;
@@ -67,6 +70,7 @@ protected:
 private:
     FTimerHandle CaptureTimer;
 
+    bool EnemyTryingToUncapture = false;
     TArray<int32> TeamPlayerCounter{0, 0};
     int32 CurrentFlagCapacity = 0;
 

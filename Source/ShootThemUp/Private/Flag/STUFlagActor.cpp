@@ -3,6 +3,7 @@
 #include "Flag/STUFlagActor.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/STUHealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Player/STUPlayerState.h"
 #include "STUGameModeBase.h"
@@ -37,15 +38,21 @@ void ASTUFlagActor::BeginPlay()
 
 void ASTUFlagActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+    UE_LOG(LogFlag, Error, TEXT("Actor begin overlap"));
     const auto Character = Cast<ACharacter>(OtherActor);
     if (!Character) return;
+    const auto HealthComponent = Cast<USTUHealthComponent>(Character->GetComponentByClass(USTUHealthComponent::StaticClass()));
+    HealthComponent->OnDeath.
     AddPlayerToSeize(Character);
 }
 
 void ASTUFlagActor::NotifyActorEndOverlap(AActor* OtherActor)
 {
+    UE_LOG(LogFlag, Error, TEXT("Actor end overlap"));
+
     const auto Character = Cast<ACharacter>(OtherActor);
     if (!Character) return;
+
     RemovePlayerFromSeize(Character);
 }
 
@@ -75,7 +82,7 @@ void ASTUFlagActor::AddPlayerToSeize(ACharacter* Player)
     ++TeamPlayerCounter[TeamID - 1];
 }
 
-void ASTUFlagActor::ResetFlag() 
+void ASTUFlagActor::ResetFlag()
 {
     CurrentFlagColor = DefaultFlagColor;
     CurrentFlagCapacity = 0;
@@ -95,7 +102,11 @@ void ASTUFlagActor::RemovePlayerFromSeize(ACharacter* Player)
 ASTUPlayerState* ASTUFlagActor::GetPlayerState(ACharacter* Player)
 {
     const auto Controller = Cast<AController>(Player->Controller);
-    if (!Controller) return nullptr;
+    if (!Controller)
+    {
+        UE_LOG(LogFlag, Error, TEXT("Cant get controller"));
+        return nullptr;
+    }
     return Controller->GetPlayerState<ASTUPlayerState>();
 }
 
@@ -191,6 +202,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // if amount of enemy players is bigger then amount of captured players - start to capture
             if (TeamPlayerCounter[CapturedByTeamNumber - 1] < TeamPlayerCounter[CapturedByTeamNumber % 2])
             {
+                EnemyTryingToUncapture = true;
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + (TeamDifferenceCaptured * CaptureSpeed), 0, MaxFlagCapacity);
             }
             // if amount of captured players is bigger then amount of enemy players and second one have already captured some capacity
@@ -198,6 +210,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             else if (TeamPlayerCounter[CapturedByTeamNumber - 1] > TeamPlayerCounter[CapturedByTeamNumber % 2] &&
                      CurrentFlagCapacity < MaxFlagCapacity)
             {
+                EnemyTryingToUncapture = false;
                 CurrentFlagCapacity =
                     FMath::Clamp(CurrentFlagCapacity + (TeamDifferenceCaptured * CaptureSpeed + CaptureSpeed), 0, MaxFlagCapacity);
             }
@@ -205,11 +218,13 @@ void ASTUFlagActor::UpdateCaptureTimer()
             else if (TeamPlayerCounter[CapturedByTeamNumber - 1] == TeamPlayerCounter[CapturedByTeamNumber % 2] &&
                      TeamPlayerCounter[CapturedByTeamNumber - 1] == 0)
             {
+                EnemyTryingToUncapture = false;
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity + CaptureSpeed, 0, MaxFlagCapacity);
             }
             // if there is equal amount of players and capacity is less then max value - do nothing
             else if (TeamPlayerCounter[CapturedByTeamNumber - 1] == TeamPlayerCounter[CapturedByTeamNumber % 2])
             {
+                EnemyTryingToUncapture = true;
                 break;
             }
 
@@ -218,7 +233,7 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // if enemy team captured all the capacity of owner team - change state
             if (CurrentFlagCapacity == 0)
             {
-                // UE_LOG(LogFlag, Error, TEXT("Change state to NOTCAPTURED"));
+                EnemyTryingToUncapture = false;
                 OnFlagUncaptured.Broadcast(CapturedByTeamNumber);
                 CapturedByTeamNumber = -1;
                 SetFlagColor();

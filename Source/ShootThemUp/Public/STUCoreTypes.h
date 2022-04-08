@@ -148,7 +148,6 @@ UENUM(BlueprintType)
 enum class ESTUFlagState : uint8
 {
     NotCaptured = 0,
-    InCaptureProgress,
     Captured,
 };
 
