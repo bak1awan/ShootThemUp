@@ -81,16 +81,16 @@ void USTUHealthComponent::OnTakePointDamage(AActor* DamagedActor, float Damage, 
     UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser)
 {
     const auto FinalDamage = Damage * GetPointDamageModifier(DamagedActor, BoneName);
-    ApplyDamage(FinalDamage, InstigatedBy);
+    ApplyDamage(DamagedActor, FinalDamage, InstigatedBy);
 }
 
 void USTUHealthComponent::OnTakeRadialDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, FVector Origin,
     FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
 {
-    ApplyDamage(Damage, InstigatedBy);
+    ApplyDamage(DamagedActor, Damage, InstigatedBy);
 }
 
-void USTUHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
+void USTUHealthComponent::ApplyDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy)
 {
     if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
 

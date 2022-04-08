@@ -28,6 +28,7 @@ public:
     int32 GetOwningTeamID() const { return CapturedByTeamNumber; }
     ESTUFlagState GetCaptureState() const { return FlagState; }
     bool GetTryingToUncapture() const { return EnemyTryingToUncapture; }
+    const TArray<int32>& GetTeamPlayerCounter() const { return TeamPlayerCounter; }
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     FLinearColor DefaultFlagColor = FLinearColor::White;
@@ -78,4 +79,5 @@ private:
     void RemovePlayerFromSeize(ACharacter* Player);
     ASTUPlayerState* GetPlayerState(ACharacter* Player);
     void UpdateCaptureTimer();
+    //void OnDeath(AActor* Player);
 };

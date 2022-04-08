@@ -44,7 +44,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Game")
     FGameData GameData;
 
-    void RestartRound();
+    virtual void RestartRound();
 
 private:
     int32 CurrentRound = 1;

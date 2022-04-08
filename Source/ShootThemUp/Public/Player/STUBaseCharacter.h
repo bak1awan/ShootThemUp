@@ -10,6 +10,7 @@ class UCharacterMovementComponent;
 class USTUHealthComponent;
 class USTUWeaponComponent;
 class USoundCue;
+FDelegateHandle;
 
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
@@ -17,7 +18,6 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
     GENERATED_BODY()
 
 public:
-    // Sets default values for this character's properties
     ASTUBaseCharacter(const FObjectInitializer& ObjInit);
 
 protected:
@@ -45,7 +45,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
     USoundCue* DeathSound;
 
-    // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
     virtual void OnDeath();
@@ -66,6 +65,7 @@ public:
     virtual void Reset() override;
 
 private:
+
     UFUNCTION()
     void OnGroundLanded(const FHitResult& Hit);
 };

@@ -10,6 +10,8 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "STUBaseCharacter.h"
+#include "STUUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFlag, All, All);
 
@@ -38,23 +40,51 @@ void ASTUFlagActor::BeginPlay()
 
 void ASTUFlagActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-    UE_LOG(LogFlag, Error, TEXT("Actor begin overlap"));
-    const auto Character = Cast<ACharacter>(OtherActor);
+    UE_LOG(LogFlag, Error, TEXT("Actor begin overlap!"));
+    const auto Character = Cast<ASTUBaseCharacter>(OtherActor);
     if (!Character) return;
-    const auto HealthComponent = Cast<USTUHealthComponent>(Character->GetComponentByClass(USTUHealthComponent::StaticClass()));
-    HealthComponent->OnDeath.
+
+    //const auto HealthComponent = STUUtils::GetSTUPlayerComponent<USTUHealthComponent>(Character);
+    //if (!HealthComponent) return;
+    //if (!HealthComponent->OnDeath.IsBoundToObject(this))
+    //{
+    //    HealthComponent->OnDeath.AddUObject(this, &ASTUFlagActor::OnDeath);
+    //}
+    
+    
+
     AddPlayerToSeize(Character);
 }
 
 void ASTUFlagActor::NotifyActorEndOverlap(AActor* OtherActor)
 {
-    UE_LOG(LogFlag, Error, TEXT("Actor end overlap"));
-
-    const auto Character = Cast<ACharacter>(OtherActor);
+    UE_LOG(LogFlag, Error, TEXT("Actor end overlap!"));
+    const auto Character = Cast<ASTUBaseCharacter>(OtherActor);
     if (!Character) return;
+
+    //const auto HealthComponent = STUUtils::GetSTUPlayerComponent < USTUHealthComponent>(Character);
+    //if (!HealthComponent) return;
 
     RemovePlayerFromSeize(Character);
 }
+
+
+//void ASTUFlagActor::OnDeath(AActor* Player)
+//{
+//    const auto Distance = FVector::DistXY(GetActorLocation(), Player->GetActorLocation());
+//    const auto SphereRadius = FlagCollision->GetUnscaledSphereRadius();
+//    if (Distance > SphereRadius)
+//    {
+//        UE_LOG(LogFlag, Error, TEXT("Player died far away from flag!"));
+//    }
+//    else
+//    {
+//        UE_LOG(LogFlag, Error, TEXT("Player died in flag zone!"));
+//    }
+//    UE_LOG(LogFlag, Error, TEXT("Distance between flag and player: %.2f"), Distance);
+//    UE_LOG(LogFlag, Error, TEXT("Sphere collision radius is: %.2f"), FlagCollision->GetUnscaledSphereRadius());
+//}
+
 
 void ASTUFlagActor::SetFlagColor()
 {
@@ -94,7 +124,11 @@ void ASTUFlagActor::ResetFlag()
 void ASTUFlagActor::RemovePlayerFromSeize(ACharacter* Player)
 {
     const auto PlayerState = GetPlayerState(Player);
-    if (!PlayerState) return;
+    if (!PlayerState)
+    {
+        UE_LOG(LogFlag, Error, TEXT("Cant get PlayerState"));
+        return;
+    }
     const auto TeamID = PlayerState->GetTeamID();
     --TeamPlayerCounter[TeamID - 1];
 }
