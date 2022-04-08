@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "STUFlagWinningWidget.generated.h"
 
+class ASTUFlagGameMode;
+
 UCLASS()
 class SHOOTTHEMUP_API USTUFlagWinningWidget : public UUserWidget
 {

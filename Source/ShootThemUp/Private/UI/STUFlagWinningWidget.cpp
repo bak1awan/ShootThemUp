@@ -1,7 +1,7 @@
 // Shoot Them Up Game. All Rights Reserved.
 
-#include "STUFlagGameMode.h"
 #include "UI/STUFlagWinningWidget.h"
+#include "STUFlagGameMode.h"
 
 int32 USTUFlagWinningWidget::GetRecaptureTimeCountDown() const
 {
