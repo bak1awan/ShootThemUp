@@ -51,6 +51,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
     int32 CaptureSpeed = 5;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FlagProperties")
+    float TimerRate = 1.0f;
+
     FLinearColor TeamFlagColor;
     FLinearColor CurrentFlagColor;
 
@@ -79,5 +82,4 @@ private:
     void RemovePlayerFromSeize(ACharacter* Player);
     ASTUPlayerState* GetPlayerState(ACharacter* Player);
     void UpdateCaptureTimer();
-    //void OnDeath(AActor* Player);
 };

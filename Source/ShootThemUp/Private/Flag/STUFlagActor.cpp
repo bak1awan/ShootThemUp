@@ -32,7 +32,7 @@ ASTUFlagActor::ASTUFlagActor()
 void ASTUFlagActor::BeginPlay()
 {
     Super::BeginPlay();
-    GetWorld()->GetTimerManager().SetTimer(CaptureTimer, this, &ASTUFlagActor::UpdateCaptureTimer, 1.0f, true);
+    GetWorld()->GetTimerManager().SetTimer(CaptureTimer, this, &ASTUFlagActor::UpdateCaptureTimer, TimerRate, true);
     check(FlagMesh);
     check(FlagCollision);
     SetFlagColor();
@@ -40,51 +40,19 @@ void ASTUFlagActor::BeginPlay()
 
 void ASTUFlagActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-    UE_LOG(LogFlag, Error, TEXT("Actor begin overlap!"));
     const auto Character = Cast<ASTUBaseCharacter>(OtherActor);
     if (!Character) return;
-
-    //const auto HealthComponent = STUUtils::GetSTUPlayerComponent<USTUHealthComponent>(Character);
-    //if (!HealthComponent) return;
-    //if (!HealthComponent->OnDeath.IsBoundToObject(this))
-    //{
-    //    HealthComponent->OnDeath.AddUObject(this, &ASTUFlagActor::OnDeath);
-    //}
-    
-    
 
     AddPlayerToSeize(Character);
 }
 
 void ASTUFlagActor::NotifyActorEndOverlap(AActor* OtherActor)
 {
-    UE_LOG(LogFlag, Error, TEXT("Actor end overlap!"));
     const auto Character = Cast<ASTUBaseCharacter>(OtherActor);
     if (!Character) return;
 
-    //const auto HealthComponent = STUUtils::GetSTUPlayerComponent < USTUHealthComponent>(Character);
-    //if (!HealthComponent) return;
-
     RemovePlayerFromSeize(Character);
 }
-
-
-//void ASTUFlagActor::OnDeath(AActor* Player)
-//{
-//    const auto Distance = FVector::DistXY(GetActorLocation(), Player->GetActorLocation());
-//    const auto SphereRadius = FlagCollision->GetUnscaledSphereRadius();
-//    if (Distance > SphereRadius)
-//    {
-//        UE_LOG(LogFlag, Error, TEXT("Player died far away from flag!"));
-//    }
-//    else
-//    {
-//        UE_LOG(LogFlag, Error, TEXT("Player died in flag zone!"));
-//    }
-//    UE_LOG(LogFlag, Error, TEXT("Distance between flag and player: %.2f"), Distance);
-//    UE_LOG(LogFlag, Error, TEXT("Sphere collision radius is: %.2f"), FlagCollision->GetUnscaledSphereRadius());
-//}
-
 
 void ASTUFlagActor::SetFlagColor()
 {
@@ -202,7 +170,6 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // if there is equal amount of characters we should not increase the capacity
             else if (TeamPlayerCounter[0] == TeamPlayerCounter[1] && TeamPlayerCounter[0] > 0)
             {
-                // UE_LOG(LogFlag, Error, TEXT("Equal amount of characters near flag"));
                 break;
             }
 
@@ -212,9 +179,6 @@ void ASTUFlagActor::UpdateCaptureTimer()
             {
                 CurrentFlagCapacity = FMath::Clamp(CurrentFlagCapacity - CaptureSpeed, 0, MaxFlagCapacity);
             }
-
-            // UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
-            // UE_LOG(LogFlag, Error, TEXT("Flag capacity percent: %.2f"), GetFlagCapacityPercent());
 
             // if Current flag capacity get to 0, we need to change the captured team number of the flag to -1 (restore to default)
             if (CurrentFlagCapacity == 0)
@@ -226,7 +190,6 @@ void ASTUFlagActor::UpdateCaptureTimer()
             // If one team captured the flag - change state
             if (CurrentFlagCapacity == MaxFlagCapacity)
             {
-                // UE_LOG(LogFlag, Error, TEXT("Change state to CAPTURED"));
                 FlagState = ESTUFlagState::Captured;
                 OnFlagCaptured.Broadcast(CapturedByTeamNumber);
             }
@@ -261,8 +224,6 @@ void ASTUFlagActor::UpdateCaptureTimer()
                 EnemyTryingToUncapture = true;
                 break;
             }
-
-            // UE_LOG(LogFlag, Error, TEXT("Current flag capacity: %i"), CurrentFlagCapacity);
 
             // if enemy team captured all the capacity of owner team - change state
             if (CurrentFlagCapacity == 0)
