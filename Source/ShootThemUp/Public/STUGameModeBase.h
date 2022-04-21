@@ -44,11 +44,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Game")
     FGameData GameData;
 
+    int32 RoundCountDown = 0;
+
     virtual void RestartRound();
+    virtual void GameTimerUpdate();
 
 private:
     int32 CurrentRound = 1;
-    int32 RoundCountDown = 0;
+    
     FTimerHandle GameRoundTimerHandle;
     ESTUMatchState MatchState = ESTUMatchState::WaitingToStart;
 
@@ -56,7 +59,7 @@ private:
 
     void SpawnBots();
     void StartRound();
-    void GameTimerUpdate();
+    
 
     void ResetPlayers();
     void ResetOnePlayer(AController* Controller);

@@ -34,6 +34,15 @@ void ASTUFlagGameMode::RestartRound()
     Super::RestartRound();
 }
 
+void ASTUFlagGameMode::GameTimerUpdate() 
+{
+    if (--RoundCountDown == 0)
+    {
+        RestartTimeCountDown = GameData.RestartTime;
+        GetWorld()->GetTimerManager().SetTimer(RestartTimer, this, &ASTUFlagGameMode::RestartTimerUpdate, 1.0f, true);
+    }
+}
+
 void ASTUFlagGameMode::ResetFlags()
 {
     for (auto Flag : TActorRange<ASTUFlagActor>(GetWorld()))
@@ -71,6 +80,7 @@ void ASTUFlagGameMode::OnFlagUncaptured(const int32 TeamID)
     if (WinningTeamID == TeamID && TeamFlagScore[TeamID - 1] < 3)
     {
         GetWorld()->GetTimerManager().ClearTimer(RecaptureTimer);
+        WinningTeamID = -1;
     }
 }
 

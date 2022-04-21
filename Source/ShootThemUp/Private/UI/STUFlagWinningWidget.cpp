@@ -58,3 +58,15 @@ ASTUFlagGameMode* USTUFlagWinningWidget::GetSTUFlagGameMode() const
 {
     return GetWorld() ? Cast<ASTUFlagGameMode>(GetWorld()->GetAuthGameMode()) : nullptr;
 }
+
+int32 USTUFlagWinningWidget::GetCurrentRoundNum() const
+{
+    const auto GameMode = GetSTUFlagGameMode();
+    return GameMode ? GameMode->GetCurrentRoundNum() : 0;
+}
+
+int32 USTUFlagWinningWidget::GetTotalRoundsNum() const
+{
+    const auto GameMode = GetSTUFlagGameMode();
+    return GameMode ? GameMode->GetGameData().RoundsNum : 0;
+}

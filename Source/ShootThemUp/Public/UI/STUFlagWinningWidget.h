@@ -32,6 +32,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UI")
     FLinearColor GetWinningTeamColor() const;
 
-    private:
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    int32 GetCurrentRoundNum() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    int32 GetTotalRoundsNum() const;
+
+private:
     ASTUFlagGameMode* GetSTUFlagGameMode() const;
 };

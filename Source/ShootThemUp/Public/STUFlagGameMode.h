@@ -25,13 +25,15 @@ public:
 
 protected:
     TArray<int32> TeamFlagScore{0, 0};
-    virtual void RestartRound() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time")
     int32 RecaptureTimeCountDown = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time")
     int32 RestartTimeCountDown = 0;
+
+    virtual void RestartRound() override;
+    virtual void GameTimerUpdate() override;
 
 private:
     int32 WinningTeamID = -1;
